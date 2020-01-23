@@ -15,5 +15,30 @@
   "bugs": {
     "url": "https://github.com/khaoz346/venotes/issues"
   },
-  "homepage": "https://github.com/khaoz346/venotes#readme"
+  "homepage": "https://github.com/khaoz346/venotes#readme",
+  "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.17.0",
+    "@typescript-eslint/parser": "^2.17.0",
+    "eslint": "^6.8.0",
+    "eslint-plugin-react": "^7.18.0",
+    "typescript": "^3.7.5"
+  },
+  "devDependencies": {
+    "eslint-config-prettier": "^6.9.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "husky": "^4.2.0",
+    "lint-staged": "^10.0.2",
+    "prettier": "^1.19.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "./node_modules/.bin/eslint --fix",
+      "prettier --write"
+    ]
+  }
 }
