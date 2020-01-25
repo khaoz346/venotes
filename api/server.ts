@@ -1,4 +1,4 @@
-const express = require('./node_modules/express');
+const express = require('express');
 const graphqlHTTP = require('express-graphql');
 const { buildSchema } = require('graphql');
 
@@ -6,13 +6,31 @@ const { buildSchema } = require('graphql');
 const schema = buildSchema(`
   type Query {
     hello: String
+    goodbye: String
+    test: Character
+  }
+
+  type Character {
+    name: String!
+    age: Int!
   }
 `);
+
+const character: object = {
+  name: 'Victor Wu',
+  age: 24
+};
 
 // The root provides a resolver function for each API endpoint
 const root = {
   hello: (): string => {
     return 'Hello world!';
+  },
+  goodbye: (): string => {
+    return 'Goodbye world!';
+  },
+  test: (): object => {
+    return character;
   }
 };
 
