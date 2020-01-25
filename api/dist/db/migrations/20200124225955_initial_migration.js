@@ -41,18 +41,10 @@ function up(knex) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             return [2 /*return*/, knex.schema.createTable(TABLE_NAME, function (table) {
-                    table
-                        .increments('id')
-                        .primary();
-                    table
-                        .string('email')
-                        .notNullable();
-                    table
-                        .string('first_name')
-                        .nullable();
-                    table
-                        .string('last_name')
-                        .nullable();
+                    table.increments('id').primary();
+                    table.string('email').notNullable();
+                    table.string('first_name').nullable();
+                    table.string('last_name').nullable();
                     table
                         .timestamp('created_at')
                         .notNullable()

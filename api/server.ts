@@ -1,10 +1,8 @@
 const express = require('express');
 const { makeGraphqlHTTP } = require('./graphql');
-const { Model } = require('objection');
-const knex = require('./db/knex/knex');
+const { setupKnex } = require('./db/knex');
 
-//Bind Models to a knex instance
-Model.knex(knex);
+setupKnex();
 
 const app = express();
 app.use('/graphql', makeGraphqlHTTP());
