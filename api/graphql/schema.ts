@@ -6,6 +6,10 @@ const { typeDef: User, resolvers: UserResolvers } = require('./user');
 const Query = `
     type Query {
         _empty: String
+    }
+
+    type Mutation {
+        _empty: String
     }`;
 
 export const schema = makeExecutableSchema({

@@ -1,6 +1,26 @@
+interface User {
+  id: number;
+  email: string;
+}
+
+interface Users {
+  [key: number]: User;
+}
+
+const users: Users = {
+  1: {
+    id: 1,
+    email: 'victor@gmail.com'
+  },
+  2: {
+    id: 2,
+    email: 'carol@gmail.com'
+  }
+};
+
 export const typeDef = `
     extend type Query {
-        user: User
+        getUserById(userId: Int!): User
     }
     type User {
         id: Int!
@@ -10,6 +30,6 @@ export const typeDef = `
 
 export const resolvers = {
   Query: {
-    user: () => ({ id: 1, email: 'victor@gmail.com' })
+    getUserById: (parent: undefined, { userId }: any): User => users[userId]
   }
 };
