@@ -15,7 +15,8 @@ module.exports = {
   },
   rules: {
     semi: 'off',
-    '@typescript-eslint/semi': ['error']
+    '@typescript-eslint/semi': ['error'],
+    "@typescript-eslint/no-var-requires": "off"
   },
   settings: {
     react: {

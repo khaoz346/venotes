@@ -17,9 +17,6 @@
   },
   "homepage": "https://github.com/khaoz346/venotes#readme",
   "dependencies": {
-    "express": "^4.17.1",
-    "express-graphql": "^0.9.0",
-    "graphql": "^14.5.8",
     "typescript": "^3.7.5"
   },
   "devDependencies": {
@@ -43,7 +40,7 @@
     }
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
+    "*.{ts,tsx}": [
       "./node_modules/.bin/eslint --fix",
       "prettier --write"
     ]
