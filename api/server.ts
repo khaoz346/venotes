@@ -1,5 +1,6 @@
 const express = require('express');
 const { makeGraphqlHTTP } = require('./graphql');
+const knex = require('./db/knex/knex');
 
 const app = express();
 app.use('/graphql', makeGraphqlHTTP());

@@ -1,18 +1,17 @@
 // Update for other dev envs
 
 module.exports = {
-
   development: {
     client: 'mysql',
     connection: {
       host: '127.0.0.1',
       database: 'venotes',
-      user:     'root',
+      user: 'root',
       password: 'venotes',
       charset: 'utf8'
     },
     migrations: {
-      directory: __dirname + '/knex/migrations'
+      directory: __dirname + '/db/knex/migrations'
     }
   },
 
@@ -20,7 +19,7 @@ module.exports = {
     client: 'postgresql',
     connection: {
       database: 'my_db',
-      user:     'username',
+      user: 'username',
       password: 'password'
     },
     pool: {
@@ -36,7 +35,7 @@ module.exports = {
     client: 'postgresql',
     connection: {
       database: 'my_db',
-      user:     'username',
+      user: 'username',
       password: 'password'
     },
     pool: {
@@ -47,5 +46,4 @@ module.exports = {
       tableName: 'knex_migrations'
     }
   }
-
 };
