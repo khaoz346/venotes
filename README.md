@@ -22,3 +22,12 @@
 
 Develop in typescript and use `npm run tsc` script to compile to js. 
 tbd
+
+## Other
+If mysql container is not working, add a new user by logging into `root@localhost` and entering the following mysql commands:
+
+- `CREATE USER 'venotes'@'localhost' IDENTIFIED BY 'venotes';`
+- `GRANT ALL PRIVILEGES ON * . * TO 'venotes'@'localhost';`
+- `FLUSH PRIVILEGES;`
+- `CREATE DATABASE venotes;`
+- `ALTER USER 'venotes'@'localhost' IDENTIFIED WITH mysql_native_password BY 'venotes';`
