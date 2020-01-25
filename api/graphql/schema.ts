@@ -1,6 +1,7 @@
 const { makeExecutableSchema } = require('graphql-tools');
+const { merge } = require('lodash');
 
-const { typeDef: User } = require('./user');
+const { typeDef: User, resolvers: UserResolvers } = require('./user');
 
 const Query = `
     type Query {
@@ -8,5 +9,6 @@ const Query = `
     }`;
 
 export const schema = makeExecutableSchema({
-  typeDefs: [Query, User]
+  typeDefs: [Query, User],
+  resolvers: merge(UserResolvers)
 });
