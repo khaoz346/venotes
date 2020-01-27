@@ -1,6 +1,6 @@
 const express = require('express');
 const { makeGraphqlHTTP } = require('./graphql');
-const { setupKnex } = require('./db/knex');
+const { setupKnex } = require('./database/knex');
 
 setupKnex();
 

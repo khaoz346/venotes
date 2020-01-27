@@ -1,7 +1,7 @@
 "use strict";
 var express = require('express');
 var makeGraphqlHTTP = require('./graphql').makeGraphqlHTTP;
-var setupKnex = require('./db/knex').setupKnex;
+var setupKnex = require('./database/knex').setupKnex;
 setupKnex();
 var app = express();
 app.use('/graphql', makeGraphqlHTTP());

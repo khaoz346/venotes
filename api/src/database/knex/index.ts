@@ -1,5 +1,4 @@
-const config = require('../knexfile');
-console.log(config);
+const config = require('./knexConfig');
 const knex = require('knex')(config);
 const { Model } = require('objection');
 
