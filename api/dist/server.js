@@ -1,9 +1,13 @@
 "use strict";
-var express = require('express');
-var makeGraphqlHTTP = require('./graphql').makeGraphqlHTTP;
-var setupKnex = require('./database/knex').setupKnex;
+const express = require('express');
+const { makeGraphqlHTTP } = require('./graphql');
+const { setupKnex } = require('./database/knex');
+const { authenticate: authMiddleware } = require('./middleware/authenticate');
+const { errorHandler: errorMiddleware } = require('./middleware/errorHandler');
 setupKnex();
-var app = express();
+const app = express();
+app.use('/', authMiddleware);
 app.use('/graphql', makeGraphqlHTTP());
+app.use(errorMiddleware);
 app.listen(5050);
 console.log('Running a GraphQL API server at http://localhost:5050/graphql');

@@ -1,4 +1,4 @@
-interface User {
+export interface User {
   id: number;
   email: string;
 }
@@ -30,6 +30,6 @@ export const typeDef = `
 
 export const resolvers = {
   Query: {
-    getUserById: (parent: undefined, { userId }: any): User => users[userId]
+    getUserById: (_parent: any, { userId }: any): User => users[userId]
   }
 };

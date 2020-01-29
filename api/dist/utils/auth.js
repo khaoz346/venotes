@@ -1,15 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var jwt = require('jsonwebtoken');
-var CustomError = require('../errors').CustomError;
-exports.generateJwtToken = function (payload) {
-    var token = jwt.sign(payload, process.env.VENOTES_JWT, { expiresIn: '180 days'
+const jwt = require('jsonwebtoken');
+const { CustomError } = require('../errors');
+exports.generateJwtToken = (payload) => {
+    const token = jwt.sign(payload, process.env.VENOTES_JWT, {
+        expiresIn: '180 days'
     });
     return token;
 };
-exports.verifyJwtToken = function (token) {
+exports.verifyJwtToken = (token) => {
     try {
-        var decoded = jwt.verify(token, process.env.VENOTES_JWT);
+        const decoded = jwt.verify(token, process.env.VENOTES_JWT);
         return decoded;
     }
     catch (e) {
@@ -17,5 +18,3 @@ exports.verifyJwtToken = function (token) {
         throw new CustomError('Failed to verify JWT token', 'INVALID_TOKEN', 401);
     }
 };
-console.log(exports.generateJwtToken({ userId: 1 }));
-console.log(exports.verifyJwtToken(exports.generateJwtToken({ userId: 1 })));

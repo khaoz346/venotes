@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var users = {
+const users = {
     1: {
         id: 1,
         email: 'victor@gmail.com'
@@ -10,12 +10,17 @@ var users = {
         email: 'carol@gmail.com'
     }
 };
-exports.typeDef = "\n    extend type Query {\n        getUserById(userId: Int!): User\n    }\n    type User {\n        id: Int!\n        email: String!\n    }\n";
+exports.typeDef = `
+    extend type Query {
+        getUserById(userId: Int!): User
+    }
+    type User {
+        id: Int!
+        email: String!
+    }
+`;
 exports.resolvers = {
     Query: {
-        getUserById: function (parent, _a) {
-            var userId = _a.userId;
-            return users[userId];
-        }
+        getUserById: (_parent, { userId }) => users[userId]
     }
 };
