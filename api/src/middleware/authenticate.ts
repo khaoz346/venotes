@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { CustomError } from '../errors';
 import { verifyJwtToken } from '../utils/auth';
-import { User } from 'graphql/user';
+import User from '../database/models/user';
 
 interface AuthenticatedRequest extends Request {
-  currentUser?: User;
+  currentUser?: Promise<User> | User;
   access?: string;
 }
 
@@ -34,11 +34,7 @@ export const authenticate = (
       );
     }
     //Find User based on User ID and return that user to req.currentUser
-    //Determine role of that user and add to req.access
-    req.currentUser = {
-      id: 1,
-      email: 'victor@gmail.com'
-    };
+    req.currentUser = User.getUserById(userId);
 
     //If no User found, throw a custom error and handle in error middleware
   } catch (e) {

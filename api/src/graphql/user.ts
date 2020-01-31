@@ -1,22 +1,8 @@
-export interface User {
-  id: number;
-  email: string;
-}
+import User from '../database/models/user';
 
-interface Users {
-  [key: number]: User;
-}
-
-const users: Users = {
-  1: {
-    id: 1,
-    email: 'victor@gmail.com'
-  },
-  2: {
-    id: 2,
-    email: 'carol@gmail.com'
-  }
-};
+// interface Users {
+//   [key: number]: User;
+// }
 
 export const typeDef = `
     extend type Query {
@@ -28,8 +14,11 @@ export const typeDef = `
     }
 `;
 
+//TODO: Find out types for graphql resolver params
+
 export const resolvers = {
   Query: {
-    getUserById: (_parent: any, { userId }: any): User => users[userId]
+    getUserById: async (_parent: any, { userId }: any): Promise<User> =>
+      User.getUserById(userId)
   }
 };

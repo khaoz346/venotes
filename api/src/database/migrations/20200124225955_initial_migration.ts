@@ -5,11 +5,18 @@ export async function up(knex: Knex): Promise<any> {
   return knex.schema.createTable(TABLE_NAME, (table: Knex.TableBuilder) => {
     table.increments('id').primary();
 
-    table.string('email').notNullable();
+    table.string('email').nullable();
+
+    table.string('password').nullable();
 
     table.string('first_name').nullable();
 
     table.string('last_name').nullable();
+
+    table
+      .string('role')
+      .notNullable()
+      .defaultTo(knex.raw("'guest'"));
 
     table
       .timestamp('created_at')
