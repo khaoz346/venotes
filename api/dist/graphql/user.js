@@ -16,14 +16,44 @@ const user_1 = __importDefault(require("../database/models/user"));
 exports.typeDef = `
     extend type Query {
         getUserById(userId: Int!): User
+        getUserByEmail(userEmail: String!): User
     }
+
+    extend type Mutation {
+      createUser(input: CreateUserInput): User
+    }
+
+    enum Role {
+      member
+      guest
+    }
+
+    input CreateUserInput {
+      email: String!
+      password: String!
+      firstName: String
+      lastName: String
+      role: Role
+    }
+
     type User {
-        id: Int!
-        email: String!
+        id: ID!
+        email: String
+        password: String
+        firstName: String
+        lastName: String
+        role: Role!
+        createdAt: String
+        updatedAt: String
     }
+
 `;
 exports.resolvers = {
     Query: {
-        getUserById: (_parent, { userId }) => __awaiter(void 0, void 0, void 0, function* () { return user_1.default.getUserById(userId); })
+        getUserById: (_parent, { userId }) => __awaiter(void 0, void 0, void 0, function* () { return user_1.default.getUserById(userId); }),
+        getUserByEmail: (_parent, { userEmail }) => __awaiter(void 0, void 0, void 0, function* () { return user_1.default.getUserByEmail(userEmail); })
+    },
+    Mutation: {
+        createUser: (_, { input }) => __awaiter(void 0, void 0, void 0, function* () { return user_1.default.createUser(input); })
     }
 };

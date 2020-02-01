@@ -1,11 +1,6 @@
-import { ErrorHandler, Request, Response, NextFunction } from 'express';
-import { CustomError } from '../errors';
+import { ErrorHandler } from 'express';
 
-export const errorHandler: ErrorHandler = (
-  err: CustomError,
-  _req: Request,
-  res: Response,
-  _next: NextFunction
-): Response => {
+export const errorHandler: ErrorHandler = (err, _req, res, _next) => {
+  console.log(err);
   return res.status(err.status).send(err.message);
 };

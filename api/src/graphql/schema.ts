@@ -5,6 +5,7 @@ const { typeDef: User, resolvers: UserResolvers } = require('./user');
 
 const Query = `
     type Query {
+        greeting: String
         _empty: String
     }
 
@@ -14,5 +15,5 @@ const Query = `
 
 export const schema = makeExecutableSchema({
   typeDefs: [Query, User],
-  resolvers: merge(UserResolvers)
+  resolvers: merge(UserResolvers, { Query: { greeting: () => 'Hello!' } })
 });

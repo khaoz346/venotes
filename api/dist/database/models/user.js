@@ -10,36 +10,40 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const objection_1 = require("objection");
+const errors_1 = require("../../errors");
+var Role;
+(function (Role) {
+    Role[Role["member"] = 0] = "member";
+    Role[Role["guest"] = 1] = "guest";
+})(Role || (Role = {}));
 class User extends objection_1.Model {
-    static get tableName() {
-        return 'users';
-    }
-    static get idColumn() {
-        return 'id';
-    }
-    static get columnNameMappers() {
-        return objection_1.snakeCaseMappers();
-    }
-    static get jsonSchema() {
-        return {
-            type: 'object',
-            required: ['id', 'role', 'created_at', 'updated_at'],
-            properties: {
-                id: { type: 'integer' },
-                email: { type: 'string' },
-                firstName: { type: 'string' },
-                lastName: { type: 'string' },
-                password: { type: 'string' },
-                role: { type: 'string', enum: ['member', 'guest'] },
-                createdAt: { type: 'date' },
-                updatedAt: { type: 'date' }
-            }
-        };
-    }
     static createGuest() {
         return __awaiter(this, void 0, void 0, function* () {
-            const guestUser = yield this.query().insert();
+            const insertResult = yield this.query().insert({});
+            const { id: userId } = insertResult;
+            const guestUser = yield this.query().findById(userId);
             return guestUser;
+        });
+    }
+    static createUser(args) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { email, password, firstName, lastName, role = 'member' } = args;
+            if (!email || !password) {
+                throw new errors_1.CustomError('Missing email or password', 'VALIDATION_ERROR', 400);
+            }
+            if (this.doesUserExist(email)) {
+                throw new errors_1.CustomError('Email already exists', 'VALIDATION_ERROR', 409);
+            }
+            const insertResult = yield this.query().insert({
+                email,
+                password,
+                firstName,
+                lastName,
+                role
+            });
+            const { id: userId } = insertResult;
+            const user = yield this.query().findById(userId);
+            return user;
         });
     }
     static getUserById(userId) {
@@ -48,5 +52,33 @@ class User extends objection_1.Model {
             return user;
         });
     }
+    static getUserByEmail(userEmail) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield this.query().where('email', userEmail);
+            return user;
+        });
+    }
+    static doesUserExist(userEmail) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const existingUser = yield this.getUserByEmail(userEmail);
+            return existingUser.length > 0;
+        });
+    }
 }
 exports.default = User;
+User.tableName = 'users';
+User.idColumn = 'id';
+User.columnNameMappers = objection_1.snakeCaseMappers();
+User.jsonSchema = {
+    type: 'object',
+    properties: {
+        id: { type: 'integer' },
+        email: { type: 'string' },
+        firstName: { type: 'string' },
+        lastName: { type: 'string' },
+        password: { type: 'string' },
+        role: { type: 'string', enum: ['member', 'guest'] },
+        createdAt: { type: 'timestamp' },
+        updatedAt: { type: 'timestamp' }
+    }
+};

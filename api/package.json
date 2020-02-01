@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@types/express": "github:types/npm-express",
+    "@types/jsonwebtoken": "^8.3.7",
     "nodemon": "^2.0.2"
   }
 }

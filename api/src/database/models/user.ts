@@ -1,42 +1,92 @@
 import { Model, snakeCaseMappers } from 'objection';
+import { CustomError } from '../../errors';
+
+enum Role {
+  member,
+  guest
+}
 
 export default class User extends Model {
-  static get tableName() {
-    return 'users';
-  }
+  readonly id!: number;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  password?: string;
+  role!: Role;
+  createdAt!: Date;
+  updatedAt!: Date;
 
-  static get idColumn() {
-    return 'id';
-  }
+  static tableName = 'users';
 
-  static get columnNameMappers() {
-    return snakeCaseMappers();
-  }
+  static idColumn = 'id';
 
-  static get jsonSchema() {
-    return {
-      type: 'object',
-      required: ['id', 'role', 'created_at', 'updated_at'],
-      properties: {
-        id: { type: 'integer' },
-        email: { type: 'string' },
-        firstName: { type: 'string' },
-        lastName: { type: 'string' },
-        password: { type: 'string' },
-        role: { type: 'string', enum: ['member', 'guest'] },
-        createdAt: { type: 'date' },
-        updatedAt: { type: 'date' }
-      }
-    };
-  }
+  static columnNameMappers = snakeCaseMappers();
+
+  static jsonSchema = {
+    type: 'object',
+
+    // required: ['id', 'role', 'created_at', 'updated_at'],
+
+    properties: {
+      id: { type: 'integer' },
+      email: { type: 'string' },
+      firstName: { type: 'string' },
+      lastName: { type: 'string' },
+      password: { type: 'string' },
+      role: { type: 'string', enum: ['member', 'guest'] },
+      createdAt: { type: 'timestamp' },
+      updatedAt: { type: 'timestamp' }
+    }
+  };
 
   static async createGuest() {
-    const guestUser = await this.query().insert();
+    const insertResult = await this.query().insert({});
+    const { id: userId } = insertResult;
+    const guestUser = await this.query().findById(userId);
     return guestUser;
+  }
+
+  //Create a user with email and password. If the email already exists, throw an error.
+  //Once a user is created, return that user
+  static async createUser(args: any) {
+    const { email, password, firstName, lastName, role = 'member' } = args;
+    if (!email || !password) {
+      throw new CustomError(
+        'Missing email or password',
+        'VALIDATION_ERROR',
+        400
+      );
+    }
+
+    if (this.doesUserExist(email)) {
+      throw new CustomError('Email already exists', 'VALIDATION_ERROR', 409);
+    }
+
+    const insertResult = await this.query().insert({
+      email,
+      password,
+      firstName,
+      lastName,
+      role
+    });
+
+    const { id: userId } = insertResult;
+    const user = await this.query().findById(userId);
+    return user;
   }
 
   static async getUserById(userId: number): Promise<User> {
     const user = await this.query().findById(userId);
     return user;
+  }
+
+  static async getUserByEmail(userEmail: string): Promise<User[]> {
+    const user = await this.query().where('email', userEmail);
+    return user;
+  }
+
+  static async doesUserExist(userEmail: string): Promise<boolean> {
+    const existingUser = await this.getUserByEmail(userEmail);
+    return existingUser.length > 0;
   }
 }
