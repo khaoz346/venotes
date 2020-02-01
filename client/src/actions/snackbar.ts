@@ -1,0 +1,4 @@
+export default {
+  UPDATE: 'SNACKBAR:UPDATE',
+  CLEAR: 'SNACKBAR:CLEAR'
+};

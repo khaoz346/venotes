@@ -9,13 +9,18 @@ import {
   Button,
   LinearProgress
 } from '@material-ui/core';
+import { connect } from 'react-redux';
 import { validateEmail, validatePassword } from '../utils/validation';
 import { getSessionToken } from '../utils/authenticate';
+import { snackbar } from '../actions';
+import Snackbar from '../shared/Snackbar';
 
-//TODO: Create fetch helpers
 //TODO: Implement styling
 
-const Register: React.FC = () => {
+const Register: React.FC<{ snackbarState: any; dispatch: any }> = ({
+  snackbarState,
+  dispatch
+}) => {
   const classes = useStyles();
   const [email, setEmail] = React.useState({
     value: '',
@@ -33,28 +38,20 @@ const Register: React.FC = () => {
     data: null,
     pending: false
   });
-  const [snackbar, setSnackbar] = React.useState({
-    successful: null as null | boolean,
-    msg: null as null | string
-  });
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
+    const msg = !validateEmail(value)
+      ? 'Please enter a valid email address'
+      : 'Email already exists. Please use a different email.';
     setEmail({
       ...email,
       value,
-      error: !validateEmail(value),
-      msg: 'Please enter a valid email address.'
+      msg,
+      error: !validateEmail(value) || email.existingEmails.includes(value)
     });
-    if (email.existingEmails.includes(value)) {
-      setEmail({
-        ...email,
-        value,
-        error: true,
-        msg: 'Email already exists. Please use a different email.'
-      });
-    }
   };
+
   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setPassword({
@@ -64,6 +61,7 @@ const Register: React.FC = () => {
     });
   };
 
+  //Use some graphql client and fetch helper
   const handleSubmit = () => {
     const query = `mutation CreateUser($input: CreateUserInput) {
         createUser(input: $input) {
@@ -106,9 +104,20 @@ const Register: React.FC = () => {
     }
   };
 
+  const handleKeyPress = (event: any) => {
+    if (event.keyCode === 13) {
+      handleSubmit();
+    }
+  };
+
   const handlePayload = (payload: any) => {
     if (payload.errors) {
-      setSnackbar({ successful: false, msg: payload.errors[0].msg });
+      dispatch({
+        type: snackbar.UPDATE,
+        msg: payload.errors[0].message,
+        severity: 'error',
+        open: true
+      });
     }
     if (
       payload.errors &&
@@ -122,9 +131,11 @@ const Register: React.FC = () => {
       });
     }
     if (payload.data && payload.data.createUser) {
-      setSnackbar({
-        successful: true,
-        msg: 'You have successfully registered your account.'
+      dispatch({
+        type: snackbar.UPDATE,
+        msg: 'You have successfully registered your account.',
+        severity: 'success',
+        open: true
       });
       //Redirect
     }
@@ -145,6 +156,7 @@ const Register: React.FC = () => {
               error={email.error}
               helperText={email.error && email.msg}
               onChange={handleEmailChange}
+              onKeyDown={handleKeyPress}
             />
             <TextField
               className={classes.textField}
@@ -156,6 +168,7 @@ const Register: React.FC = () => {
               error={password.error}
               helperText={password.error && password.msg}
               onChange={handlePasswordChange}
+              onKeyDown={handleKeyPress}
             />
           </form>
           <Button variant="contained" fullWidth onClick={handleSubmit}>
@@ -164,6 +177,7 @@ const Register: React.FC = () => {
         </CardContent>
       </Card>
       {registerState.pending && <LinearProgress />}
+      <Snackbar />
     </Container>
   );
 };
@@ -177,4 +191,7 @@ const useStyles = makeStyles({
   }
 });
 
-export default Register;
+export default connect(
+  state => ({ snackbarState: (state as any).snackbar }),
+  dispatch => ({ dispatch })
+)(Register);
