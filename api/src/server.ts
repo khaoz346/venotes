@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const { makeGraphqlHTTP } = require('./graphql');
 const { setupKnex } = require('./database/knex');
 const { authenticate: authMiddleware } = require('./middleware/authenticate');
@@ -8,6 +9,7 @@ const { addGuestRoute } = require('./guestRoute');
 setupKnex();
 
 const app = express();
+app.use(cors());
 addGuestRoute(app);
 app.use('/', authMiddleware);
 app.use('/graphql', makeGraphqlHTTP());
