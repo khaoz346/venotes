@@ -5,7 +5,10 @@ export async function up(knex: Knex): Promise<any> {
   return knex.schema.createTable(TABLE_NAME, (table: Knex.TableBuilder) => {
     table.increments('id').primary();
 
-    table.string('email').nullable();
+    table
+      .string('email')
+      .nullable()
+      .unique();
 
     table.string('password').nullable();
 

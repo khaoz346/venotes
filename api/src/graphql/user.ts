@@ -46,11 +46,13 @@ export const resolvers = {
   Query: {
     getUserById: async (_parent: any, { userId }: any): Promise<User> =>
       User.getUserById(userId),
-    getUserByEmail: async (_parent: any, { userEmail }: any): Promise<User[]> =>
+    getUserByEmail: async (_parent: any, { userEmail }: any): Promise<User> =>
       User.getUserByEmail(userEmail)
   },
   Mutation: {
-    createUser: async (_: any, { input }: any): Promise<User> =>
-      User.createUser(input)
+    createUser: async (_: any, { input }: any): Promise<User> => {
+      const createdUser = await User.createUser(input);
+      return createdUser;
+    }
   }
 };

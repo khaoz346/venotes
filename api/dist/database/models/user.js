@@ -31,7 +31,7 @@ class User extends objection_1.Model {
             if (!email || !password) {
                 throw new errors_1.CustomError('Missing email or password', 'VALIDATION_ERROR', 400);
             }
-            if (this.doesUserExist(email)) {
+            if (yield this.getUserByEmail(email)) {
                 throw new errors_1.CustomError('Email already exists', 'VALIDATION_ERROR', 409);
             }
             const insertResult = yield this.query().insert({
@@ -54,14 +54,10 @@ class User extends objection_1.Model {
     }
     static getUserByEmail(userEmail) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.query().where('email', userEmail);
-            return user;
-        });
-    }
-    static doesUserExist(userEmail) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const existingUser = yield this.getUserByEmail(userEmail);
-            return existingUser.length > 0;
+            const user = yield this
+                .query()
+                .whereRaw(`LOWER(email) LIKE ?`, `%${userEmail.toLowerCase()}%`);
+            return user[0];
         });
     }
 }

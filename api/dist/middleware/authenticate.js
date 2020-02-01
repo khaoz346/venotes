@@ -12,7 +12,7 @@ exports.authenticate = (req, _res, next) => {
     try {
         const token = getAuthTokenFromRequest(req);
         if (!token) {
-            throw new errors_1.CustomError('No authentication token in request.');
+            throw new errors_1.CustomError('No authentication token in request.', 'MISSING_TOKEN', 401);
         }
         const decoded = auth_1.verifyJwtToken(token);
         const userId = decoded.id;

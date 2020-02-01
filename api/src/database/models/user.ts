@@ -1,4 +1,5 @@
 import { Model, snakeCaseMappers } from 'objection';
+import _ from 'lodash';
 import { CustomError } from '../../errors';
 
 enum Role {
@@ -58,7 +59,7 @@ export default class User extends Model {
       );
     }
 
-    if (this.doesUserExist(email)) {
+    if (await this.getUserByEmail(email)) {
       throw new CustomError('Email already exists', 'VALIDATION_ERROR', 409);
     }
 
@@ -80,13 +81,11 @@ export default class User extends Model {
     return user;
   }
 
-  static async getUserByEmail(userEmail: string): Promise<User[]> {
-    const user = await this.query().where('email', userEmail);
-    return user;
-  }
-
-  static async doesUserExist(userEmail: string): Promise<boolean> {
-    const existingUser = await this.getUserByEmail(userEmail);
-    return existingUser.length > 0;
+  static async getUserByEmail(userEmail: string): Promise<User> {
+    const user = await this.query().whereRaw(
+      `LOWER(email) LIKE ?`,
+      `%${userEmail.toLowerCase()}%`
+    );
+    return user[0];
   }
 }

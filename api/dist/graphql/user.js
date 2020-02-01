@@ -54,6 +54,9 @@ exports.resolvers = {
         getUserByEmail: (_parent, { userEmail }) => __awaiter(void 0, void 0, void 0, function* () { return user_1.default.getUserByEmail(userEmail); })
     },
     Mutation: {
-        createUser: (_, { input }) => __awaiter(void 0, void 0, void 0, function* () { return user_1.default.createUser(input); })
+        createUser: (_, { input }) => __awaiter(void 0, void 0, void 0, function* () {
+            const createdUser = yield user_1.default.createUser(input);
+            return createdUser;
+        })
     }
 };

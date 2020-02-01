@@ -6,37 +6,127 @@ import {
   FormLabel,
   TextField,
   makeStyles,
-  Button
+  Button,
+  LinearProgress
 } from '@material-ui/core';
 import { validateEmail, validatePassword } from '../utils/validation';
+import { getSessionToken } from '../utils/authenticate';
 
-//TODO: Check if email is already taken
+//TODO: Create fetch helpers
 //TODO: Implement styling
 
 const Register: React.FC = () => {
   const classes = useStyles();
-  const [email, setEmail] = React.useState();
-  const [emailError, setEmailError] = React.useState(false);
-  const [password, setPassword] = React.useState();
-  const [passwordError, setPasswordError] = React.useState(false);
+  const [email, setEmail] = React.useState({
+    value: '',
+    error: false,
+    msg: 'Please enter a valid email address',
+    existingEmails: [] as string[]
+  });
+  const [password, setPassword] = React.useState({
+    value: '',
+    error: false,
+    msg: 'A valid password must be at least 8 characters long'
+  });
+  const [registerState, setRegisterState] = React.useState({
+    errors: null,
+    data: null,
+    pending: false
+  });
+  const [snackbar, setSnackbar] = React.useState({
+    successful: null as null | boolean,
+    msg: null as null | string
+  });
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const emailVal = event.target.value;
-    setEmail(emailVal);
-    setEmailError(!validateEmail(emailVal));
+    const value = event.target.value;
+    setEmail({
+      ...email,
+      value,
+      error: !validateEmail(value),
+      msg: 'Please enter a valid email address.'
+    });
+    if (email.existingEmails.includes(value)) {
+      setEmail({
+        ...email,
+        value,
+        error: true,
+        msg: 'Email already exists. Please use a different email.'
+      });
+    }
   };
   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const passwordVal = event.target.value;
-    setPassword(passwordVal);
-    setPasswordError(!validatePassword(passwordVal));
+    const value = event.target.value;
+    setPassword({
+      ...password,
+      value,
+      error: !validatePassword(value)
+    });
   };
 
   const handleSubmit = () => {
-    if (!emailError && !passwordError) {
+    const query = `mutation CreateUser($input: CreateUserInput) {
+        createUser(input: $input) {
+            id
+        }
+    }`;
+
+    if (email.value && !email.error && password.value && !password.error) {
+      setRegisterState({ ...registerState, pending: true });
+      fetch(`http://localhost:5050/graphql`, {
+        method: 'POST',
+        headers: new Headers({
+          Authorization: `Bearer ${getSessionToken()}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        }),
+        body: JSON.stringify({
+          query,
+          variables: {
+            input: {
+              email: email.value,
+              password: password.value
+            }
+          }
+        })
+      })
+        .then(response => response.json())
+        .then(payload => {
+          handlePayload(payload);
+          setRegisterState({
+            ...registerState,
+            pending: false,
+            ...payload
+          });
+        });
       //Post to create user
       //Handle success and handle failure
       //Show loading feedback
       //Implement redux
+    }
+  };
+
+  const handlePayload = (payload: any) => {
+    if (payload.errors) {
+      setSnackbar({ successful: false, msg: payload.errors[0].msg });
+    }
+    if (
+      payload.errors &&
+      payload.errors[0].message === 'Email already exists'
+    ) {
+      setEmail({
+        ...email,
+        error: true,
+        msg: 'Email already exists. Please use a different email.',
+        existingEmails: [...email.existingEmails, email.value]
+      });
+    }
+    if (payload.data && payload.data.createUser) {
+      setSnackbar({
+        successful: true,
+        msg: 'You have successfully registered your account.'
+      });
+      //Redirect
     }
   };
 
@@ -51,9 +141,9 @@ const Register: React.FC = () => {
               fullWidth
               label="Email"
               variant="outlined"
-              value={email}
-              error={emailError}
-              helperText={emailError && 'Please enter a valid email'}
+              value={email.value}
+              error={email.error}
+              helperText={email.error && email.msg}
               onChange={handleEmailChange}
             />
             <TextField
@@ -61,13 +151,10 @@ const Register: React.FC = () => {
               fullWidth
               label="Password"
               variant="outlined"
-              value={password}
+              value={password.value}
               type="password"
-              error={passwordError}
-              helperText={
-                passwordError &&
-                'A valid password must be at least 8 characters long'
-              }
+              error={password.error}
+              helperText={password.error && password.msg}
               onChange={handlePasswordChange}
             />
           </form>
@@ -76,6 +163,7 @@ const Register: React.FC = () => {
           </Button>
         </CardContent>
       </Card>
+      {registerState.pending && <LinearProgress />}
     </Container>
   );
 };

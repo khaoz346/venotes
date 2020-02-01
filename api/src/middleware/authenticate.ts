@@ -22,7 +22,11 @@ export const authenticate = (
   try {
     const token = getAuthTokenFromRequest(req);
     if (!token) {
-      throw new CustomError('No authentication token in request.');
+      throw new CustomError(
+        'No authentication token in request.',
+        'MISSING_TOKEN',
+        401
+      );
     }
     const decoded = verifyJwtToken(token) as any;
 

@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/lodash": "^4.14.149",
     "@types/node": "^13.5.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
