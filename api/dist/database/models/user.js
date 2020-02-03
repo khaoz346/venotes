@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const objection_1 = require("objection");
+const auth_1 = require("../../utils/auth");
 const errors_1 = require("../../errors");
 var Role;
 (function (Role) {
@@ -54,10 +55,21 @@ class User extends objection_1.Model {
     }
     static getUserByEmail(userEmail) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield this
-                .query()
-                .whereRaw(`LOWER(email) LIKE ?`, `%${userEmail.toLowerCase()}%`);
+            const user = yield this.query().whereRaw(`LOWER(email) LIKE ?`, `%${userEmail.toLowerCase()}%`);
             return user[0];
+        });
+    }
+    static login(email, password) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield this.query().whereRaw(`LOWER(email) LIKE %${email.toLowerCase()}%
+      AND password = ${password}
+      `);
+            if (user[0].id) {
+                throw Error;
+            }
+            const payload = user[0];
+            const jwt = yield auth_1.generateJwtToken(payload);
+            return jwt;
         });
     }
 }

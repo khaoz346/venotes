@@ -9,18 +9,19 @@ import {
   Button,
   LinearProgress
 } from '@material-ui/core';
+import { gql } from 'apollo-boost';
+import { useMutation, useQuery } from '@apollo/react-hooks';
 import { connect } from 'react-redux';
 import { validateEmail, validatePassword } from '../utils/validation';
-import { getSessionToken } from '../utils/authenticate';
+import { setSessionToken } from '../utils/authenticate';
+import { getGraphQLErrorMsg } from '../utils/error';
 import { snackbar } from '../actions';
 import Snackbar from '../shared/Snackbar';
+import { login } from '../apollo/queries/user';
 
 //TODO: Implement styling
 
-const Register: React.FC<{ snackbarState: any; dispatch: any }> = ({
-  snackbarState,
-  dispatch
-}) => {
+const Register: React.FC<{ dispatch?: any }> = ({ dispatch }) => {
   const classes = useStyles();
   const [email, setEmail] = React.useState({
     value: '',
@@ -33,11 +34,41 @@ const Register: React.FC<{ snackbarState: any; dispatch: any }> = ({
     error: false,
     msg: 'A valid password must be at least 8 characters long'
   });
-  const [registerState, setRegisterState] = React.useState({
-    errors: null,
-    data: null,
-    pending: false
+
+  const GQL_CREATE_USER = gql`
+    mutation CreateUser($input: CreateUserInput!) {
+      createUser(input: $input) {
+        id
+      }
+    }
+  `;
+
+  const [createUser, { loading }] = useMutation(GQL_CREATE_USER, {
+    onError: e => handleError(e),
+    onCompleted: data => handleCompleted(data)
   });
+
+  function handleError(e: any) {
+    setEmail({
+      ...email,
+      error: true,
+      existingEmails: [...email.existingEmails, email.value]
+    });
+    dispatch({
+      type: snackbar.UPDATE,
+      msg: getGraphQLErrorMsg(e),
+      severity: 'error',
+      open: true
+    });
+  }
+
+  async function handleCompleted(data: any) {
+    const userJwt = await login(email.value, password.value);
+    if (userJwt) {
+      setSessionToken(userJwt);
+      //redirect to dashboard....
+    }
+  }
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -62,82 +93,22 @@ const Register: React.FC<{ snackbarState: any; dispatch: any }> = ({
   };
 
   //Use some graphql client and fetch helper
-  const handleSubmit = () => {
-    const query = `mutation CreateUser($input: CreateUserInput) {
-        createUser(input: $input) {
-            id
-        }
-    }`;
-
+  const handleSubmit = async () => {
     if (email.value && !email.error && password.value && !password.error) {
-      setRegisterState({ ...registerState, pending: true });
-      fetch(`http://localhost:5050/graphql`, {
-        method: 'POST',
-        headers: new Headers({
-          Authorization: `Bearer ${getSessionToken()}`,
-          'Content-Type': 'application/json',
-          Accept: 'application/json'
-        }),
-        body: JSON.stringify({
-          query,
-          variables: {
-            input: {
-              email: email.value,
-              password: password.value
-            }
+      createUser({
+        variables: {
+          input: {
+            email: email.value,
+            password: password.value
           }
-        })
-      })
-        .then(response => response.json())
-        .then(payload => {
-          handlePayload(payload);
-          setRegisterState({
-            ...registerState,
-            pending: false,
-            ...payload
-          });
-        });
-      //Post to create user
-      //Handle success and handle failure
-      //Show loading feedback
-      //Implement redux
+        }
+      });
     }
   };
 
   const handleKeyPress = (event: any) => {
     if (event.keyCode === 13) {
       handleSubmit();
-    }
-  };
-
-  const handlePayload = (payload: any) => {
-    if (payload.errors) {
-      dispatch({
-        type: snackbar.UPDATE,
-        msg: payload.errors[0].message,
-        severity: 'error',
-        open: true
-      });
-    }
-    if (
-      payload.errors &&
-      payload.errors[0].message === 'Email already exists'
-    ) {
-      setEmail({
-        ...email,
-        error: true,
-        msg: 'Email already exists. Please use a different email.',
-        existingEmails: [...email.existingEmails, email.value]
-      });
-    }
-    if (payload.data && payload.data.createUser) {
-      dispatch({
-        type: snackbar.UPDATE,
-        msg: 'You have successfully registered your account.',
-        severity: 'success',
-        open: true
-      });
-      //Redirect
     }
   };
 
@@ -176,7 +147,7 @@ const Register: React.FC<{ snackbarState: any; dispatch: any }> = ({
           </Button>
         </CardContent>
       </Card>
-      {registerState.pending && <LinearProgress />}
+      {loading && <LinearProgress />}
       <Snackbar />
     </Container>
   );
@@ -191,7 +162,4 @@ const useStyles = makeStyles({
   }
 });
 
-export default connect(
-  state => ({ snackbarState: (state as any).snackbar }),
-  dispatch => ({ dispatch })
-)(Register);
+export default connect(null, dispatch => ({ dispatch }))(Register);

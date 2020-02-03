@@ -17,6 +17,7 @@ exports.typeDef = `
     extend type Query {
         getUserById(userId: Int!): User
         getUserByEmail(userEmail: String!): User
+        loginUser(email: String!, password: String!): String
     }
 
     extend type Mutation {
@@ -51,7 +52,8 @@ exports.typeDef = `
 exports.resolvers = {
     Query: {
         getUserById: (_parent, { userId }) => __awaiter(void 0, void 0, void 0, function* () { return user_1.default.getUserById(userId); }),
-        getUserByEmail: (_parent, { userEmail }) => __awaiter(void 0, void 0, void 0, function* () { return user_1.default.getUserByEmail(userEmail); })
+        getUserByEmail: (_parent, { userEmail }) => __awaiter(void 0, void 0, void 0, function* () { return user_1.default.getUserByEmail(userEmail); }),
+        loginUser: (_parent, { email, password }) => __awaiter(void 0, void 0, void 0, function* () { return user_1.default.login(email, password); })
     },
     Mutation: {
         createUser: (_, { input }) => __awaiter(void 0, void 0, void 0, function* () {

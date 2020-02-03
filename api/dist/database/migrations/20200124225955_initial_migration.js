@@ -14,7 +14,10 @@ function up(knex) {
     return __awaiter(this, void 0, void 0, function* () {
         return knex.schema.createTable(TABLE_NAME, (table) => {
             table.increments('id').primary();
-            table.string('email').nullable().unique();
+            table
+                .string('email')
+                .nullable()
+                .unique();
             table.string('password').nullable();
             table.string('first_name').nullable();
             table.string('last_name').nullable();

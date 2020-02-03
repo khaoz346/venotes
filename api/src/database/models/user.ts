@@ -1,5 +1,6 @@
 import { Model, snakeCaseMappers } from 'objection';
 import _ from 'lodash';
+import { generateJwtToken } from '../../utils/auth';
 import { CustomError } from '../../errors';
 
 enum Role {
@@ -87,5 +88,17 @@ export default class User extends Model {
       `%${userEmail.toLowerCase()}%`
     );
     return user[0];
+  }
+
+  static async login(email: string, password: string): Promise<string> {
+    const user = await this.query().whereRaw(
+      `LOWER(email) LIKE %${email.toLowerCase()}%
+      AND password = ${password}
+      `
+    );
+    //error handling if no user found...
+    const payload = user[0];
+    const jwt = await generateJwtToken(payload);
+    return jwt;
   }
 }
