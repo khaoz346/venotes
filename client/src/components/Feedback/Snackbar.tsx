@@ -3,7 +3,7 @@ import { Snackbar as MuiSnackbar } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { connect } from 'react-redux';
 
-import { snackbar } from '../actions';
+import { snackbar } from '../../store/actions';
 
 const Snackbar: React.FC<any> = ({ snackbarState, dispatch }) => {
   const handleClose = (_event: any, reason: any) => {

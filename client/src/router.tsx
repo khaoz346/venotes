@@ -1,13 +1,17 @@
 import React from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
-import Register from './views/Register';
+import RegisterPage from './pages/RegisterPage';
+import LoginPage from './pages/LoginPage';
 
 export const Router = () => {
   return (
     <BrowserRouter>
       <Switch>
         <Route path="/register">
-          <Register />
+          <RegisterPage />
+        </Route>
+        <Route path="/login">
+          <LoginPage />
         </Route>
       </Switch>
     </BrowserRouter>

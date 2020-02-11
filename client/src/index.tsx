@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import Authenticate from './Authenticate';
+import Authenticate from './components/Authenticate';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(<Authenticate />, document.getElementById('root'));

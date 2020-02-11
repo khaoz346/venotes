@@ -8,8 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const objection_1 = require("objection");
+const lodash_1 = __importDefault(require("lodash"));
 const auth_1 = require("../../utils/auth");
 const errors_1 = require("../../errors");
 var Role;
@@ -28,13 +32,15 @@ class User extends objection_1.Model {
     }
     static createUser(args) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { email, password, firstName, lastName, role = 'member' } = args;
+            const { password, firstName, lastName, role = 'member' } = args;
+            let { email } = args;
             if (!email || !password) {
                 throw new errors_1.CustomError('Missing email or password', 'VALIDATION_ERROR', 400);
             }
             if (yield this.getUserByEmail(email)) {
                 throw new errors_1.CustomError('Email already exists', 'VALIDATION_ERROR', 409);
             }
+            email = email.toLowerCase();
             const insertResult = yield this.query().insert({
                 email,
                 password,
@@ -53,19 +59,17 @@ class User extends objection_1.Model {
             return user;
         });
     }
-    static getUserByEmail(userEmail) {
+    static getUserByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.query().whereRaw(`LOWER(email) LIKE ?`, `%${userEmail.toLowerCase()}%`);
+            const user = yield this.query().where({ email });
             return user[0];
         });
     }
     static login(email, password) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.query().whereRaw(`LOWER(email) LIKE %${email.toLowerCase()}%
-      AND password = ${password}
-      `);
-            if (user[0].id) {
-                throw Error;
+            const user = yield this.query().where({ email, password });
+            if (lodash_1.default.isEmpty(user)) {
+                throw new errors_1.CustomError('Login credentials do not exist', 'INVALID_LOGIN', 401);
             }
             const payload = user[0];
             const jwt = yield auth_1.generateJwtToken(payload);

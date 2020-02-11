@@ -17,11 +17,11 @@ exports.typeDef = `
     extend type Query {
         getUserById(userId: Int!): User
         getUserByEmail(userEmail: String!): User
-        loginUser(email: String!, password: String!): String
     }
 
     extend type Mutation {
       createUser(input: CreateUserInput): User
+      loginUser(email: String!, password: String!): String
     }
 
     enum Role {
@@ -52,13 +52,13 @@ exports.typeDef = `
 exports.resolvers = {
     Query: {
         getUserById: (_parent, { userId }) => __awaiter(void 0, void 0, void 0, function* () { return user_1.default.getUserById(userId); }),
-        getUserByEmail: (_parent, { userEmail }) => __awaiter(void 0, void 0, void 0, function* () { return user_1.default.getUserByEmail(userEmail); }),
-        loginUser: (_parent, { email, password }) => __awaiter(void 0, void 0, void 0, function* () { return user_1.default.login(email, password); })
+        getUserByEmail: (_parent, { userEmail }) => __awaiter(void 0, void 0, void 0, function* () { return user_1.default.getUserByEmail(userEmail); })
     },
     Mutation: {
         createUser: (_, { input }) => __awaiter(void 0, void 0, void 0, function* () {
             const createdUser = yield user_1.default.createUser(input);
             return createdUser;
-        })
+        }),
+        loginUser: (_parent, { email, password }) => __awaiter(void 0, void 0, void 0, function* () { return user_1.default.login(email, password); })
     }
 };

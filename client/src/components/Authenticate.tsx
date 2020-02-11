@@ -1,11 +1,11 @@
 import React from 'react';
 import { CircularProgress } from '@material-ui/core';
-import App from './App';
+import App from '../App';
 
 import {
   getSessionToken,
   setSessionToken as storeSessionTokenInLocalStorage
-} from './utils/authenticate';
+} from '../utils/authenticate';
 
 const Authenticate: React.FC = () => {
   const [currentToken, setCurrentToken] = React.useState(getSessionToken());

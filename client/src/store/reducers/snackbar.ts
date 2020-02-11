@@ -2,13 +2,13 @@ import { snackbar } from '../actions';
 
 interface InitialState {
   open: boolean;
-  msg: string;
+  msg: string | undefined;
   severity: string | undefined;
 }
 
 const initialState: InitialState = {
   open: false,
-  msg: '',
+  msg: undefined,
   severity: undefined
 };
 

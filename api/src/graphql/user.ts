@@ -8,11 +8,11 @@ export const typeDef = `
     extend type Query {
         getUserById(userId: Int!): User
         getUserByEmail(userEmail: String!): User
-        loginUser(email: String!, password: String!): String
     }
 
     extend type Mutation {
       createUser(input: CreateUserInput): User
+      loginUser(email: String!, password: String!): String
     }
 
     enum Role {
@@ -48,16 +48,16 @@ export const resolvers = {
     getUserById: async (_parent: any, { userId }: any): Promise<User> =>
       User.getUserById(userId),
     getUserByEmail: async (_parent: any, { userEmail }: any): Promise<User> =>
-      User.getUserByEmail(userEmail),
-    loginUser: async (
-      _parent: any,
-      { email, password }: any
-    ): Promise<string> => User.login(email, password)
+      User.getUserByEmail(userEmail)
   },
   Mutation: {
     createUser: async (_: any, { input }: any): Promise<User> => {
       const createdUser = await User.createUser(input);
       return createdUser;
-    }
+    },
+    loginUser: async (
+      _parent: any,
+      { email, password }: any
+    ): Promise<string> => User.login(email, password)
   }
 };

@@ -51,7 +51,8 @@ export default class User extends Model {
   //Create a user with email and password. If the email already exists, throw an error.
   //Once a user is created, return that user
   static async createUser(args: any) {
-    const { email, password, firstName, lastName, role = 'member' } = args;
+    const { password, firstName, lastName, role = 'member' } = args;
+    let { email } = args;
     if (!email || !password) {
       throw new CustomError(
         'Missing email or password',
@@ -63,6 +64,8 @@ export default class User extends Model {
     if (await this.getUserByEmail(email)) {
       throw new CustomError('Email already exists', 'VALIDATION_ERROR', 409);
     }
+
+    email = email.toLowerCase();
 
     const insertResult = await this.query().insert({
       email,
@@ -82,21 +85,21 @@ export default class User extends Model {
     return user;
   }
 
-  static async getUserByEmail(userEmail: string): Promise<User> {
-    const user = await this.query().whereRaw(
-      `LOWER(email) LIKE ?`,
-      `%${userEmail.toLowerCase()}%`
-    );
+  static async getUserByEmail(email: string): Promise<User> {
+    const user = await this.query().where({ email });
     return user[0];
   }
 
   static async login(email: string, password: string): Promise<string> {
-    const user = await this.query().whereRaw(
-      `LOWER(email) LIKE %${email.toLowerCase()}%
-      AND password = ${password}
-      `
-    );
-    //error handling if no user found...
+    const user = await this.query().where({ email, password });
+    //TODO: error handling if no user found...
+    if (_.isEmpty(user)) {
+      throw new CustomError(
+        'Login credentials do not exist',
+        'INVALID_LOGIN',
+        401
+      );
+    }
     const payload = user[0];
     const jwt = await generateJwtToken(payload);
     return jwt;
